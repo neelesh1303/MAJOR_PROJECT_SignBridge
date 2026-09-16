@@ -1,0 +1,1315 @@
+[
+  {
+    "word": "A",
+    "image": "/letters/a.jpg",
+    "gif": "/ISL_Gifs/A.jpg",
+    "searchKeys": [
+      "a"
+    ],
+    "examples": [
+      "Example for A"
+    ]
+  },
+  {
+    "word": "B",
+    "image": "/letters/b.jpg",
+    "gif": "/ISL_Gifs/B.jpg",
+    "searchKeys": [
+      "b"
+    ],
+    "examples": [
+      "Example for B"
+    ]
+  },
+  {
+    "word": "C",
+    "image": "/letters/c.jpg",
+    "gif": "/ISL_Gifs/C.jpg",
+    "searchKeys": [
+      "c"
+    ],
+    "examples": [
+      "Example for C"
+    ]
+  },
+  {
+    "word": "D",
+    "image": "/letters/d.jpg",
+    "gif": "/ISL_Gifs/D.jpg",
+    "searchKeys": [
+      "d"
+    ],
+    "examples": [
+      "Example for D"
+    ]
+  },
+  {
+    "word": "E",
+    "image": "/letters/e.jpg",
+    "gif": "/ISL_Gifs/E.jpg",
+    "searchKeys": [
+      "e"
+    ],
+    "examples": [
+      "Example for E"
+    ]
+  },
+  {
+    "word": "F",
+    "image": "/letters/f.jpg",
+    "gif": "/ISL_Gifs/F.jpg",
+    "searchKeys": [
+      "f"
+    ],
+    "examples": [
+      "Example for F"
+    ]
+  },
+  {
+    "word": "G",
+    "image": "/letters/g.jpg",
+    "gif": "/ISL_Gifs/G.jpg",
+    "searchKeys": [
+      "g"
+    ],
+    "examples": [
+      "Example for G"
+    ]
+  },
+  {
+    "word": "H",
+    "image": "/letters/h.jpg",
+    "gif": "/ISL_Gifs/H.jpg",
+    "searchKeys": [
+      "h"
+    ],
+    "examples": [
+      "Example for H"
+    ]
+  },
+  {
+    "word": "I",
+    "image": "/letters/i.jpg",
+    "gif": null,
+    "searchKeys": [
+      "i"
+    ],
+    "examples": [
+      "Example for I"
+    ]
+  },
+  {
+    "word": "J",
+    "image": "/letters/j.jpg",
+    "gif": null,
+    "searchKeys": [
+      "j"
+    ],
+    "examples": [
+      "Example for J"
+    ]
+  },
+  {
+    "word": "K",
+    "image": "/letters/k.jpg",
+    "gif": null,
+    "searchKeys": [
+      "k"
+    ],
+    "examples": [
+      "Example for K"
+    ]
+  },
+  {
+    "word": "L",
+    "image": "/letters/l.jpg",
+    "gif": "/ISL_Gifs/L.jpg",
+    "searchKeys": [
+      "l"
+    ],
+    "examples": [
+      "Example for L"
+    ]
+  },
+  {
+    "word": "M",
+    "image": "/letters/m.jpg",
+    "gif": "/ISL_Gifs/M.jpg",
+    "searchKeys": [
+      "m"
+    ],
+    "examples": [
+      "Example for M"
+    ]
+  },
+  {
+    "word": "N",
+    "image": "/letters/n.jpg",
+    "gif": null,
+    "searchKeys": [
+      "n"
+    ],
+    "examples": [
+      "Example for N"
+    ]
+  },
+  {
+    "word": "O",
+    "image": "/letters/o.jpg",
+    "gif": null,
+    "searchKeys": [
+      "o"
+    ],
+    "examples": [
+      "Example for O"
+    ]
+  },
+  {
+    "word": "P",
+    "image": "/letters/p.jpg",
+    "gif": "/ISL_Gifs/P.jpg",
+    "searchKeys": [
+      "p"
+    ],
+    "examples": [
+      "Example for P"
+    ]
+  },
+  {
+    "word": "Q",
+    "image": "/letters/q.jpg",
+    "gif": null,
+    "searchKeys": [
+      "q"
+    ],
+    "examples": [
+      "Example for Q"
+    ]
+  },
+  {
+    "word": "R",
+    "image": "/letters/r.jpg",
+    "gif": null,
+    "searchKeys": [
+      "r"
+    ],
+    "examples": [
+      "Example for R"
+    ]
+  },
+  {
+    "word": "S",
+    "image": "/letters/s.jpg",
+    "gif": null,
+    "searchKeys": [
+      "s"
+    ],
+    "examples": [
+      "Example for S"
+    ]
+  },
+  {
+    "word": "T",
+    "image": "/letters/t.jpg",
+    "gif": "/ISL_Gifs/T.jpg",
+    "searchKeys": [
+      "t"
+    ],
+    "examples": [
+      "Example for T"
+    ]
+  },
+  {
+    "word": "U",
+    "image": "/letters/u.jpg",
+    "gif": null,
+    "searchKeys": [
+      "u"
+    ],
+    "examples": [
+      "Example for U"
+    ]
+  },
+  {
+    "word": "V",
+    "image": "/letters/v.jpg",
+    "gif": null,
+    "searchKeys": [
+      "v"
+    ],
+    "examples": [
+      "Example for V"
+    ]
+  },
+  {
+    "word": "W",
+    "image": "/letters/w.jpg",
+    "gif": null,
+    "searchKeys": [
+      "w"
+    ],
+    "examples": [
+      "Example for W"
+    ]
+  },
+  {
+    "word": "X",
+    "image": "/letters/x.jpg",
+    "gif": null,
+    "searchKeys": [
+      "x"
+    ],
+    "examples": [
+      "Example for X"
+    ]
+  },
+  {
+    "word": "Y",
+    "image": "/letters/y.jpg",
+    "gif": "/ISL_Gifs/Y.jpg",
+    "searchKeys": [
+      "y"
+    ],
+    "examples": [
+      "Example for Y"
+    ]
+  },
+  {
+    "word": "Z",
+    "image": "/letters/z.jpg",
+    "gif": "/ISL_Gifs/Z.jpg",
+    "searchKeys": [
+      "z"
+    ],
+    "examples": [
+      "Example for Z"
+    ]
+  },
+  {
+    "word": "Address",
+    "image": null,
+    "gif": "/ISL_Gifs/address.gif",
+    "searchKeys": [
+      "address"
+    ],
+    "examples": [
+      "Example for Address"
+    ]
+  },
+  {
+    "word": "Ahemdabad",
+    "image": null,
+    "gif": "/ISL_Gifs/ahemdabad.gif",
+    "searchKeys": [
+      "ahemdabad"
+    ],
+    "examples": [
+      "Example for Ahemdabad"
+    ]
+  },
+  {
+    "word": "All",
+    "image": null,
+    "gif": "/ISL_Gifs/all.gif",
+    "searchKeys": [
+      "all"
+    ],
+    "examples": [
+      "Example for All"
+    ]
+  },
+  {
+    "word": "Any Questions",
+    "image": null,
+    "gif": "/ISL_Gifs/any questions.gif",
+    "searchKeys": [
+      "anyquestions",
+      "any questions"
+    ],
+    "examples": [
+      "Example for Any Questions"
+    ]
+  },
+  {
+    "word": "Are You Angry",
+    "image": null,
+    "gif": "/ISL_Gifs/are you angry.gif",
+    "searchKeys": [
+      "are you angry",
+      "areyouangry"
+    ],
+    "examples": [
+      "Example for Are You Angry"
+    ]
+  },
+  {
+    "word": "Are You Busy",
+    "image": null,
+    "gif": "/ISL_Gifs/are you busy.gif",
+    "searchKeys": [
+      "are you busy",
+      "areyoubusy"
+    ],
+    "examples": [
+      "Example for Are You Busy"
+    ]
+  },
+  {
+    "word": "Are You Hungry",
+    "image": null,
+    "gif": "/ISL_Gifs/are you hungry.gif",
+    "searchKeys": [
+      "areyouhungry",
+      "are you hungry"
+    ],
+    "examples": [
+      "Example for Are You Hungry"
+    ]
+  },
+  {
+    "word": "Assam",
+    "image": null,
+    "gif": "/ISL_Gifs/assam.gif",
+    "searchKeys": [
+      "assam"
+    ],
+    "examples": [
+      "Example for Assam"
+    ]
+  },
+  {
+    "word": "August",
+    "image": null,
+    "gif": "/ISL_Gifs/august.gif",
+    "searchKeys": [
+      "august"
+    ],
+    "examples": [
+      "Example for August"
+    ]
+  },
+  {
+    "word": "Banana",
+    "image": null,
+    "gif": "/ISL_Gifs/banana.gif",
+    "searchKeys": [
+      "banana"
+    ],
+    "examples": [
+      "Example for Banana"
+    ]
+  },
+  {
+    "word": "Banaras",
+    "image": null,
+    "gif": "/ISL_Gifs/banaras.gif",
+    "searchKeys": [
+      "banaras"
+    ],
+    "examples": [
+      "Example for Banaras"
+    ]
+  },
+  {
+    "word": "Banglore",
+    "image": null,
+    "gif": "/ISL_Gifs/banglore.gif",
+    "searchKeys": [
+      "banglore"
+    ],
+    "examples": [
+      "Example for Banglore"
+    ]
+  },
+  {
+    "word": "Be Careful",
+    "image": null,
+    "gif": "/ISL_Gifs/be careful.gif",
+    "searchKeys": [
+      "be careful",
+      "becareful"
+    ],
+    "examples": [
+      "Example for Be Careful"
+    ]
+  },
+  {
+    "word": "Bridge",
+    "image": null,
+    "gif": "/ISL_Gifs/bridge.gif",
+    "searchKeys": [
+      "bridge"
+    ],
+    "examples": [
+      "Example for Bridge"
+    ]
+  },
+  {
+    "word": "Cat",
+    "image": null,
+    "gif": "/ISL_Gifs/cat.gif",
+    "searchKeys": [
+      "cat"
+    ],
+    "examples": [
+      "Example for Cat"
+    ]
+  },
+  {
+    "word": "Christmas",
+    "image": null,
+    "gif": "/ISL_Gifs/christmas.gif",
+    "searchKeys": [
+      "christmas"
+    ],
+    "examples": [
+      "Example for Christmas"
+    ]
+  },
+  {
+    "word": "Church",
+    "image": null,
+    "gif": "/ISL_Gifs/church.gif",
+    "searchKeys": [
+      "church"
+    ],
+    "examples": [
+      "Example for Church"
+    ]
+  },
+  {
+    "word": "Dasara",
+    "image": null,
+    "gif": "/ISL_Gifs/dasara.gif",
+    "searchKeys": [
+      "dasara"
+    ],
+    "examples": [
+      "Example for Dasara"
+    ]
+  },
+  {
+    "word": "December",
+    "image": null,
+    "gif": "/ISL_Gifs/december.gif",
+    "searchKeys": [
+      "december"
+    ],
+    "examples": [
+      "Example for December"
+    ]
+  },
+  {
+    "word": "Did You Finish Homework",
+    "image": null,
+    "gif": "/ISL_Gifs/did you finish homework.gif",
+    "searchKeys": [
+      "didyoufinishhomework",
+      "did you finish homework"
+    ],
+    "examples": [
+      "Example for Did You Finish Homework"
+    ]
+  },
+  {
+    "word": "Do You Have Money",
+    "image": null,
+    "gif": "/ISL_Gifs/do you have money.gif",
+    "searchKeys": [
+      "do you have money",
+      "doyouhavemoney"
+    ],
+    "examples": [
+      "Example for Do You Have Money"
+    ]
+  },
+  {
+    "word": "Do You Want Something To Drink",
+    "image": null,
+    "gif": "/ISL_Gifs/do you want something to drink.gif",
+    "searchKeys": [
+      "do you want something to drink",
+      "doyouwantsomethingtodrink"
+    ],
+    "examples": [
+      "Example for Do You Want Something To Drink"
+    ]
+  },
+  {
+    "word": "Do You Watch Tv",
+    "image": null,
+    "gif": "/ISL_Gifs/do you watch TV.gif",
+    "searchKeys": [
+      "do you watch tv",
+      "doyouwatchtv"
+    ],
+    "examples": [
+      "Example for Do You Watch Tv"
+    ]
+  },
+  {
+    "word": "Dont Worry",
+    "image": null,
+    "gif": "/ISL_Gifs/dont worry.gif",
+    "searchKeys": [
+      "dontworry",
+      "dont worry"
+    ],
+    "examples": [
+      "Example for Dont Worry"
+    ]
+  },
+  {
+    "word": "Flower Is Beautiful",
+    "image": null,
+    "gif": "/ISL_Gifs/flower is beautiful.gif",
+    "searchKeys": [
+      "flowerisbeautiful",
+      "flower is beautiful"
+    ],
+    "examples": [
+      "Example for Flower Is Beautiful"
+    ]
+  },
+  {
+    "word": "Good Afternoon",
+    "image": null,
+    "gif": "/ISL_Gifs/good afternoon.gif",
+    "searchKeys": [
+      "goodafternoon",
+      "good afternoon"
+    ],
+    "examples": [
+      "Example for Good Afternoon"
+    ]
+  },
+  {
+    "word": "Good Morning",
+    "image": null,
+    "gif": "/ISL_Gifs/good morning.gif",
+    "searchKeys": [
+      "goodmorning",
+      "good morning"
+    ],
+    "examples": [
+      "Example for Good Morning"
+    ]
+  },
+  {
+    "word": "Good Question",
+    "image": null,
+    "gif": "/ISL_Gifs/good question.gif",
+    "searchKeys": [
+      "good question",
+      "goodquestion"
+    ],
+    "examples": [
+      "Example for Good Question"
+    ]
+  },
+  {
+    "word": "Grapes",
+    "image": null,
+    "gif": "/ISL_Gifs/grapes.gif",
+    "searchKeys": [
+      "grapes"
+    ],
+    "examples": [
+      "Example for Grapes"
+    ]
+  },
+  {
+    "word": "Hello",
+    "image": null,
+    "gif": "/ISL_Gifs/hello.gif",
+    "searchKeys": [
+      "hello"
+    ],
+    "examples": [
+      "Example for Hello"
+    ]
+  },
+  {
+    "word": "Hindu",
+    "image": null,
+    "gif": "/ISL_Gifs/hindu.gif",
+    "searchKeys": [
+      "hindu"
+    ],
+    "examples": [
+      "Example for Hindu"
+    ]
+  },
+  {
+    "word": "Hyderabad",
+    "image": null,
+    "gif": "/ISL_Gifs/hyderabad.gif",
+    "searchKeys": [
+      "hyderabad"
+    ],
+    "examples": [
+      "Example for Hyderabad"
+    ]
+  },
+  {
+    "word": "I Am A Clerk",
+    "image": null,
+    "gif": "/ISL_Gifs/i am a clerk.gif",
+    "searchKeys": [
+      "iamaclerk",
+      "i am a clerk"
+    ],
+    "examples": [
+      "Example for I Am A Clerk"
+    ]
+  },
+  {
+    "word": "I Am Fine",
+    "image": null,
+    "gif": "/ISL_Gifs/i am fine.gif",
+    "searchKeys": [
+      "iamfine",
+      "i am fine"
+    ],
+    "examples": [
+      "Example for I Am Fine"
+    ]
+  },
+  {
+    "word": "I Am Sorry",
+    "image": null,
+    "gif": "/ISL_Gifs/i am sorry.gif",
+    "searchKeys": [
+      "iamsorry",
+      "i am sorry"
+    ],
+    "examples": [
+      "Example for I Am Sorry"
+    ]
+  },
+  {
+    "word": "I Am Thinking",
+    "image": null,
+    "gif": "/ISL_Gifs/i am thinking.gif",
+    "searchKeys": [
+      "iamthinking",
+      "i am thinking"
+    ],
+    "examples": [
+      "Example for I Am Thinking"
+    ]
+  },
+  {
+    "word": "I Am Tired",
+    "image": null,
+    "gif": "/ISL_Gifs/i am tired.gif",
+    "searchKeys": [
+      "iamtired",
+      "i am tired"
+    ],
+    "examples": [
+      "Example for I Am Tired"
+    ]
+  },
+  {
+    "word": "I Go To A Theatre",
+    "image": null,
+    "gif": "/ISL_Gifs/i go to a theatre.gif",
+    "searchKeys": [
+      "i go to a theatre",
+      "igotoatheatre"
+    ],
+    "examples": [
+      "Example for I Go To A Theatre"
+    ]
+  },
+  {
+    "word": "I Had To Say Something But I Forgot",
+    "image": null,
+    "gif": "/ISL_Gifs/i had to say something but I forgot.gif",
+    "searchKeys": [
+      "i had to say something but i forgot",
+      "ihadtosaysomethingbutiforgot"
+    ],
+    "examples": [
+      "Example for I Had To Say Something But I Forgot"
+    ]
+  },
+  {
+    "word": "I Like Pink Colour",
+    "image": null,
+    "gif": "/ISL_Gifs/i like pink colour.gif",
+    "searchKeys": [
+      "i like pink colour",
+      "ilikepinkcolour"
+    ],
+    "examples": [
+      "Example for I Like Pink Colour"
+    ]
+  },
+  {
+    "word": "I Love To Shop",
+    "image": null,
+    "gif": "/ISL_Gifs/i love to shop.gif",
+    "searchKeys": [
+      "ilovetoshop",
+      "i love to shop"
+    ],
+    "examples": [
+      "Example for I Love To Shop"
+    ]
+  },
+  {
+    "word": "Job",
+    "image": null,
+    "gif": "/ISL_Gifs/job.gif",
+    "searchKeys": [
+      "job"
+    ],
+    "examples": [
+      "Example for Job"
+    ]
+  },
+  {
+    "word": "July",
+    "image": null,
+    "gif": "/ISL_Gifs/july.gif",
+    "searchKeys": [
+      "july"
+    ],
+    "examples": [
+      "Example for July"
+    ]
+  },
+  {
+    "word": "June",
+    "image": null,
+    "gif": "/ISL_Gifs/june.gif",
+    "searchKeys": [
+      "june"
+    ],
+    "examples": [
+      "Example for June"
+    ]
+  },
+  {
+    "word": "Karnataka",
+    "image": null,
+    "gif": "/ISL_Gifs/karnataka.gif",
+    "searchKeys": [
+      "karnataka"
+    ],
+    "examples": [
+      "Example for Karnataka"
+    ]
+  },
+  {
+    "word": "Kerala",
+    "image": null,
+    "gif": "/ISL_Gifs/kerala.gif",
+    "searchKeys": [
+      "kerala"
+    ],
+    "examples": [
+      "Example for Kerala"
+    ]
+  },
+  {
+    "word": "Krishna",
+    "image": null,
+    "gif": "/ISL_Gifs/krishna.gif",
+    "searchKeys": [
+      "krishna"
+    ],
+    "examples": [
+      "Example for Krishna"
+    ]
+  },
+  {
+    "word": "Lets Go For Lunch",
+    "image": null,
+    "gif": "/ISL_Gifs/lets go for lunch.gif",
+    "searchKeys": [
+      "letsgoforlunch",
+      "lets go for lunch"
+    ],
+    "examples": [
+      "Example for Lets Go For Lunch"
+    ]
+  },
+  {
+    "word": "Mango",
+    "image": null,
+    "gif": "/ISL_Gifs/mango.gif",
+    "searchKeys": [
+      "mango"
+    ],
+    "examples": [
+      "Example for Mango"
+    ]
+  },
+  {
+    "word": "May",
+    "image": null,
+    "gif": "/ISL_Gifs/may.gif",
+    "searchKeys": [
+      "may"
+    ],
+    "examples": [
+      "Example for May"
+    ]
+  },
+  {
+    "word": "Mile",
+    "image": null,
+    "gif": "/ISL_Gifs/mile.gif",
+    "searchKeys": [
+      "mile"
+    ],
+    "examples": [
+      "Example for Mile"
+    ]
+  },
+  {
+    "word": "Mumbai",
+    "image": null,
+    "gif": "/ISL_Gifs/mumbai.gif",
+    "searchKeys": [
+      "mumbai"
+    ],
+    "examples": [
+      "Example for Mumbai"
+    ]
+  },
+  {
+    "word": "Nagpur",
+    "image": null,
+    "gif": "/ISL_Gifs/nagpur.gif",
+    "searchKeys": [
+      "nagpur"
+    ],
+    "examples": [
+      "Example for Nagpur"
+    ]
+  },
+  {
+    "word": "Nice To Meet You",
+    "image": null,
+    "gif": "/ISL_Gifs/nice to meet you.gif",
+    "searchKeys": [
+      "nicetomeetyou",
+      "nice to meet you"
+    ],
+    "examples": [
+      "Example for Nice To Meet You"
+    ]
+  },
+  {
+    "word": "Open The Door",
+    "image": null,
+    "gif": "/ISL_Gifs/open the door.gif",
+    "searchKeys": [
+      "openthedoor",
+      "open the door"
+    ],
+    "examples": [
+      "Example for Open The Door"
+    ]
+  },
+  {
+    "word": "Pakistan",
+    "image": null,
+    "gif": "/ISL_Gifs/pakistan.gif",
+    "searchKeys": [
+      "pakistan"
+    ],
+    "examples": [
+      "Example for Pakistan"
+    ]
+  },
+  {
+    "word": "Please Call Me Later",
+    "image": null,
+    "gif": "/ISL_Gifs/please call me later.gif",
+    "searchKeys": [
+      "please call me later",
+      "pleasecallmelater"
+    ],
+    "examples": [
+      "Example for Please Call Me Later"
+    ]
+  },
+  {
+    "word": "Please Wait For Sometime",
+    "image": null,
+    "gif": "/ISL_Gifs/please wait for sometime.gif",
+    "searchKeys": [
+      "please wait for sometime",
+      "pleasewaitforsometime"
+    ],
+    "examples": [
+      "Example for Please Wait For Sometime"
+    ]
+  },
+  {
+    "word": "Police Station",
+    "image": null,
+    "gif": "/ISL_Gifs/police station.gif",
+    "searchKeys": [
+      "policestation",
+      "police station"
+    ],
+    "examples": [
+      "Example for Police Station"
+    ]
+  },
+  {
+    "word": "Post Office",
+    "image": null,
+    "gif": "/ISL_Gifs/post office.gif",
+    "searchKeys": [
+      "post office",
+      "postoffice"
+    ],
+    "examples": [
+      "Example for Post Office"
+    ]
+  },
+  {
+    "word": "Pune",
+    "image": null,
+    "gif": "/ISL_Gifs/pune.gif",
+    "searchKeys": [
+      "pune"
+    ],
+    "examples": [
+      "Example for Pune"
+    ]
+  },
+  {
+    "word": "Punjab",
+    "image": null,
+    "gif": "/ISL_Gifs/punjab.gif",
+    "searchKeys": [
+      "punjab"
+    ],
+    "examples": [
+      "Example for Punjab"
+    ]
+  },
+  {
+    "word": "Saturday",
+    "image": null,
+    "gif": "/ISL_Gifs/saturday.gif",
+    "searchKeys": [
+      "saturday"
+    ],
+    "examples": [
+      "Example for Saturday"
+    ]
+  },
+  {
+    "word": "Shall I Help You",
+    "image": null,
+    "gif": "/ISL_Gifs/shall I help you.gif",
+    "searchKeys": [
+      "shallihelpyou",
+      "shall i help you"
+    ],
+    "examples": [
+      "Example for Shall I Help You"
+    ]
+  },
+  {
+    "word": "Shall We Go Together Tommorow",
+    "image": null,
+    "gif": "/ISL_Gifs/shall we go together tommorow.gif",
+    "searchKeys": [
+      "shall we go together tommorow",
+      "shallwegotogethertommorow"
+    ],
+    "examples": [
+      "Example for Shall We Go Together Tommorow"
+    ]
+  },
+  {
+    "word": "Shop",
+    "image": null,
+    "gif": "/ISL_Gifs/shop.gif",
+    "searchKeys": [
+      "shop"
+    ],
+    "examples": [
+      "Example for Shop"
+    ]
+  },
+  {
+    "word": "Sign Language Interpreter",
+    "image": null,
+    "gif": "/ISL_Gifs/sign language interpreter.gif",
+    "searchKeys": [
+      "sign language interpreter",
+      "signlanguageinterpreter"
+    ],
+    "examples": [
+      "Example for Sign Language Interpreter"
+    ]
+  },
+  {
+    "word": "Sit Down",
+    "image": null,
+    "gif": "/ISL_Gifs/sit down.gif",
+    "searchKeys": [
+      "sit down",
+      "sitdown"
+    ],
+    "examples": [
+      "Example for Sit Down"
+    ]
+  },
+  {
+    "word": "Stand Up",
+    "image": null,
+    "gif": "/ISL_Gifs/stand up.gif",
+    "searchKeys": [
+      "standup",
+      "stand up"
+    ],
+    "examples": [
+      "Example for Stand Up"
+    ]
+  },
+  {
+    "word": "Take Care",
+    "image": null,
+    "gif": "/ISL_Gifs/take care.gif",
+    "searchKeys": [
+      "takecare",
+      "take care"
+    ],
+    "examples": [
+      "Example for Take Care"
+    ]
+  },
+  {
+    "word": "Temple",
+    "image": null,
+    "gif": "/ISL_Gifs/temple.gif",
+    "searchKeys": [
+      "temple"
+    ],
+    "examples": [
+      "Example for Temple"
+    ]
+  },
+  {
+    "word": "There Was Traffic Jam",
+    "image": null,
+    "gif": "/ISL_Gifs/there was traffic jam.gif",
+    "searchKeys": [
+      "there was traffic jam",
+      "therewastrafficjam"
+    ],
+    "examples": [
+      "Example for There Was Traffic Jam"
+    ]
+  },
+  {
+    "word": "Thursday",
+    "image": null,
+    "gif": "/ISL_Gifs/thursday.gif",
+    "searchKeys": [
+      "thursday"
+    ],
+    "examples": [
+      "Example for Thursday"
+    ]
+  },
+  {
+    "word": "Toilet",
+    "image": null,
+    "gif": "/ISL_Gifs/toilet.gif",
+    "searchKeys": [
+      "toilet"
+    ],
+    "examples": [
+      "Example for Toilet"
+    ]
+  },
+  {
+    "word": "Tomato",
+    "image": null,
+    "gif": "/ISL_Gifs/tomato.gif",
+    "searchKeys": [
+      "tomato"
+    ],
+    "examples": [
+      "Example for Tomato"
+    ]
+  },
+  {
+    "word": "Tuesday",
+    "image": null,
+    "gif": "/ISL_Gifs/tuesday.gif",
+    "searchKeys": [
+      "tuesday"
+    ],
+    "examples": [
+      "Example for Tuesday"
+    ]
+  },
+  {
+    "word": "Usa",
+    "image": null,
+    "gif": "/ISL_Gifs/usa.gif",
+    "searchKeys": [
+      "usa"
+    ],
+    "examples": [
+      "Example for Usa"
+    ]
+  },
+  {
+    "word": "Village",
+    "image": null,
+    "gif": "/ISL_Gifs/village.gif",
+    "searchKeys": [
+      "village"
+    ],
+    "examples": [
+      "Example for Village"
+    ]
+  },
+  {
+    "word": "Wednesday",
+    "image": null,
+    "gif": "/ISL_Gifs/wednesday.gif",
+    "searchKeys": [
+      "wednesday"
+    ],
+    "examples": [
+      "Example for Wednesday"
+    ]
+  },
+  {
+    "word": "What Are You Doing",
+    "image": null,
+    "gif": "/ISL_Gifs/what are you doing.gif",
+    "searchKeys": [
+      "whatareyoudoing",
+      "what are you doing"
+    ],
+    "examples": [
+      "Example for What Are You Doing"
+    ]
+  },
+  {
+    "word": "What Is The Problem",
+    "image": null,
+    "gif": "/ISL_Gifs/what is the problem.gif",
+    "searchKeys": [
+      "what is the problem",
+      "whatistheproblem"
+    ],
+    "examples": [
+      "Example for What Is The Problem"
+    ]
+  },
+  {
+    "word": "What Is Today's Date",
+    "image": null,
+    "gif": "/ISL_Gifs/what is today's date.gif",
+    "searchKeys": [
+      "whatistodaysdate",
+      "what is today's date",
+      "what is todays date"
+    ],
+    "examples": [
+      "Example for What Is Today's Date"
+    ]
+  },
+  {
+    "word": "What Is Your Father Do",
+    "image": null,
+    "gif": "/ISL_Gifs/what is your father do.gif",
+    "searchKeys": [
+      "whatisyourfatherdo",
+      "what is your father do"
+    ],
+    "examples": [
+      "Example for What Is Your Father Do"
+    ]
+  },
+  {
+    "word": "What Is Your Mobile Number",
+    "image": null,
+    "gif": "/ISL_Gifs/what is your mobile number.gif",
+    "searchKeys": [
+      "what is your mobile number",
+      "whatisyourmobilenumber"
+    ],
+    "examples": [
+      "Example for What Is Your Mobile Number"
+    ]
+  },
+  {
+    "word": "What Is Your Name",
+    "image": null,
+    "gif": "/ISL_Gifs/what is your name.gif",
+    "searchKeys": [
+      "whatisyourname",
+      "what is your name"
+    ],
+    "examples": [
+      "Example for What Is Your Name"
+    ]
+  },
+  {
+    "word": "Whats Up",
+    "image": null,
+    "gif": "/ISL_Gifs/whats up.gif",
+    "searchKeys": [
+      "whatsup",
+      "whats up"
+    ],
+    "examples": [
+      "Example for Whats Up"
+    ]
+  },
+  {
+    "word": "Where Is The Bathroom",
+    "image": null,
+    "gif": "/ISL_Gifs/where is the bathroom.gif",
+    "searchKeys": [
+      "where is the bathroom",
+      "whereisthebathroom"
+    ],
+    "examples": [
+      "Example for Where Is The Bathroom"
+    ]
+  },
+  {
+    "word": "Where Is The Police Station",
+    "image": null,
+    "gif": "/ISL_Gifs/where is the police station.gif",
+    "searchKeys": [
+      "where is the police station",
+      "whereisthepolicestation"
+    ],
+    "examples": [
+      "Example for Where Is The Police Station"
+    ]
+  },
+  {
+    "word": "You Are Wrong",
+    "image": null,
+    "gif": "/ISL_Gifs/you are wrong.gif",
+    "searchKeys": [
+      "youarewrong",
+      "you are wrong"
+    ],
+    "examples": [
+      "Example for You Are Wrong"
+    ]
+  }
+]
