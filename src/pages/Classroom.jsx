@@ -25,14 +25,32 @@ const Classroom = () => {
   const [error, setError] = useState('');
   
   const recognitionRef = useRef(null);
+  const speechTranscriptRef = useRef('');
+  const interimTranscriptRef = useRef('');
+  const speechTranslationTimerRef = useRef(null);
+  const translationRequestRef = useRef(0);
+  const [translationText, setTranslationText] = useState('');
   
   useEffect(() => {
     recognitionRef.current = createSpeechRecognition(
       (final, interim) => {
         if (final) {
-          setTeacherText(prev => (prev ? prev + ' ' + final : final).trim());
+          speechTranscriptRef.current = [speechTranscriptRef.current, final].filter(Boolean).join(' ').trim();
+          setTeacherText(speechTranscriptRef.current);
         }
+        interimTranscriptRef.current = interim;
         setInterimText(interim);
+
+        if ((final || interim.trim()) && !speechTranslationTimerRef.current) {
+          speechTranslationTimerRef.current = setTimeout(() => {
+            speechTranslationTimerRef.current = null;
+            const spokenText = [speechTranscriptRef.current, interimTranscriptRef.current]
+              .filter(Boolean)
+              .join(' ')
+              .trim();
+            if (spokenText) setTranslationText(spokenText);
+          }, 1500);
+        }
       },
       (err) => {
         if (err.error !== 'no-speech') {
@@ -53,6 +71,7 @@ const Classroom = () => {
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch(e){}
       }
+      clearTimeout(speechTranslationTimerRef.current);
     };
   }, []);
 
@@ -62,6 +81,8 @@ const Classroom = () => {
       setIsListening(false);
     } else {
       setError('');
+      speechTranscriptRef.current = teacherText;
+      interimTranscriptRef.current = '';
       try {
         recognitionRef.current?.start();
         setIsListening(true);
@@ -72,9 +93,10 @@ const Classroom = () => {
     }
   };
 
-  // Convert text to signs when teacher text updates
+  // Convert typed text immediately and spoken text after a short pause.
   useEffect(() => {
-    if (!teacherText) {
+    const requestId = ++translationRequestRef.current;
+    if (!translationText) {
       setSignSequence([]);
       setCurrentSignIndex(0);
       setIsPlaying(false);
@@ -82,7 +104,8 @@ const Classroom = () => {
     }
     
     const translate = async () => {
-      const signs = await translateTextToSigns(teacherText);
+      const signs = await translateTextToSigns(translationText);
+      if (requestId !== translationRequestRef.current) return;
       setSignSequence(signs);
       setCurrentSignIndex(0);
       if (signs.length > 0) {
@@ -90,7 +113,7 @@ const Classroom = () => {
       }
     };
     translate();
-  }, [teacherText]);
+  }, [translationText]);
 
   // Sign playback timer
   useEffect(() => {
@@ -142,9 +165,13 @@ const Classroom = () => {
   };
 
   const clearTeacherText = () => {
+    clearTimeout(speechTranslationTimerRef.current);
+    speechTranscriptRef.current = '';
+    interimTranscriptRef.current = '';
     setTeacherText('');
     setTypedInput('');
     setInterimText('');
+    setTranslationText('');
     setSignSequence([]);
     setCurrentSignIndex(0);
     setIsPlaying(false);
@@ -153,13 +180,23 @@ const Classroom = () => {
   const handleManualSubmit = (e) => {
     e.preventDefault();
     if (typedInput.trim()) {
+      clearTimeout(speechTranslationTimerRef.current);
+      speechTranscriptRef.current = typedInput.trim();
+      interimTranscriptRef.current = '';
       setTeacherText(typedInput.trim());
+      setInterimText('');
+      setTranslationText(typedInput.trim());
     }
   };
 
   const handlePresetClick = (phrase) => {
+    clearTimeout(speechTranslationTimerRef.current);
+    speechTranscriptRef.current = phrase;
+    interimTranscriptRef.current = '';
     setTypedInput(phrase);
     setTeacherText(phrase);
+    setInterimText('');
+    setTranslationText(phrase);
   };
 
   const currentSign = signSequence[currentSignIndex] || null;
@@ -246,7 +283,7 @@ const Classroom = () => {
             {/* Live Transcription Box */}
             <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
               <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
-                Active Text
+                Active Text <span className="ml-2 font-normal normal-case tracking-normal text-gray-400">Speech translation starts after 1.5 seconds</span>
               </label>
               <div className="text-base text-gray-800 font-medium min-h-[30px]">
                 {teacherText} <span className="text-blue-500 italic">{interimText}</span>
@@ -278,6 +315,7 @@ const Classroom = () => {
                     <option value={1800}>0.7x Speed</option>
                     <option value={1200}>1.0x Speed</option>
                     <option value={700}>1.5x Speed</option>
+                    <option value={600}>2x Speed</option>
                   </select>
 
                   <button 
@@ -387,4 +425,3 @@ const Classroom = () => {
 };
 
 export default Classroom;
-
