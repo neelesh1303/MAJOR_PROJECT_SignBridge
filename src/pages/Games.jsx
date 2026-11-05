@@ -1,58 +1,89 @@
 import React, { useState } from 'react';
 import Quiz from '../components/Quiz';
 import ScrambleGame from '../components/ScrambleGame';
+import TiltCard from '../components/fx/TiltCard';
+import Reveal from '../components/fx/Reveal';
+import { readStored } from '../components/fx/hooks';
+import { ArrowIcon, QuestionIcon, ShuffleIcon, TrophyIcon, FlameIcon } from '../components/fx/Icons';
+import './Games.css';
+
+const GAMES = [
+  {
+    id: 'quiz',
+    title: 'ISL Quiz',
+    body: 'Watch the sign, pick the meaning. Beat the clock and chain answers for a streak multiplier.',
+    icon: QuestionIcon,
+    tone: 'mint',
+    bestKey: 'signbridge.quiz.best',
+    tiles: ['?', 'A', 'B', 'C'],
+  },
+  {
+    id: 'scramble',
+    title: 'Caption Scramble',
+    body: 'A phrase is signed and its caption is jumbled. Put the words back in the right order.',
+    icon: ShuffleIcon,
+    tone: 'coral',
+    bestKey: 'signbridge.scramble.best',
+    tiles: ['take', 'care', 'nice', 'to'],
+  },
+];
 
 const Games = () => {
   const [activeGame, setActiveGame] = useState('hub');
 
-  if (activeGame === 'quiz') {
+  if (activeGame !== 'hub') {
     return (
-      <div className="min-h-[calc(100vh-64px)] bg-gray-50 p-4 pt-8">
-        <button onClick={() => setActiveGame('hub')} className="mb-4 text-blue-600 font-semibold hover:underline">← Back to Games</button>
-        <Quiz />
-      </div>
-    );
-  }
-
-  if (activeGame === 'scramble') {
-    return (
-      <div className="min-h-[calc(100vh-64px)] bg-gray-50 p-4 pt-8">
-        <button onClick={() => setActiveGame('hub')} className="mb-4 text-blue-600 font-semibold hover:underline">← Back to Games</button>
-        <ScrambleGame />
+      <div className="page games-play">
+        <button type="button" onClick={() => setActiveGame('hub')} className="btn btn--ghost games-back">
+          <ArrowIcon style={{ transform: 'rotate(180deg)' }} /> Back to games
+        </button>
+        {activeGame === 'quiz' ? <Quiz /> : <ScrambleGame />}
       </div>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-gray-50 flex flex-col items-center py-12 px-4">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-extrabold text-blue-600 mb-4">ISL Games</h1>
-        <p className="text-xl text-gray-600">Practice Indian Sign Language in a fun and interactive way.</p>
+    <div className="page games">
+      <Reveal className="page-head page-head--center">
+        <span className="eyebrow eyebrow--coral">Practice arcade</span>
+        <h1 className="display">Learn by <em>playing.</em></h1>
+        <p className="lead">Short, replayable games that build confidence with Indian Sign Language, one sign at a time.</p>
+      </Reveal>
+
+      <div className="games-grid">
+        {GAMES.map((game, i) => {
+          const GIcon = game.icon;
+          const best = readStored(game.bestKey, 0);
+          return (
+            <Reveal key={game.id} delay={i * 120} variant="scale">
+              <TiltCard
+                as="button"
+                type="button"
+                className={`game-card glass-panel tone-${game.tone}`}
+                onClick={() => setActiveGame(game.id)}
+                max={7}
+              >
+                <span className="game-card-art" aria-hidden="true">
+                  {game.tiles.map((t, k) => <span key={t} style={{ '--k': k }}>{t}</span>)}
+                </span>
+                <span className="game-card-top">
+                  <span className="game-icon"><GIcon /></span>
+                  <span className="game-best mono"><TrophyIcon width="14" height="14" /> Best {best}</span>
+                </span>
+                <span className="game-card-copy">
+                  <span className="game-title">{game.title}</span>
+                  <span className="game-body">{game.body}</span>
+                  <span className="game-play">Play now <ArrowIcon /></span>
+                </span>
+              </TiltCard>
+            </Reveal>
+          );
+        })}
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl w-full">
-        <div 
-          onClick={() => setActiveGame('quiz')}
-          className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer text-center group"
-        >
-          <div className="w-16 h-16 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">ISL Quiz</h2>
-          <p className="text-gray-600">Test your knowledge by identifying signs.</p>
-        </div>
-
-        <div 
-          onClick={() => setActiveGame('scramble')}
-          className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer text-center group"
-        >
-          <div className="w-16 h-16 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Caption Scramble</h2>
-          <p className="text-gray-600">Reorder English words to match an ISL phrase.</p>
-        </div>
-      </div>
+      <Reveal delay={200} className="games-tip">
+        <FlameIcon width="18" height="18" /> Tip: in the quiz, press <kbd>1</kbd>–<kbd>4</kbd> to answer and <kbd>Enter</kbd> for the next question.
+      </Reveal>
     </div>
   );
 };

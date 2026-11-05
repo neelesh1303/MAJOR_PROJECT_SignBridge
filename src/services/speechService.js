@@ -35,6 +35,30 @@ export const createSpeechRecognition = (onResult, onError, onEnd) => {
   return recognition;
 };
 
+export const getSpeechRecognitionErrorMessage = (error) => {
+  const rawCode = typeof error === 'string'
+    ? error
+    : error?.error || error?.name || 'unknown';
+  const code = {
+    NotAllowedError: 'not-allowed',
+    PermissionDeniedError: 'not-allowed',
+    NotFoundError: 'audio-capture',
+    NetworkError: 'network',
+  }[rawCode] || rawCode;
+
+  const messages = {
+    'not-allowed': 'Microphone access is blocked. Allow microphone access for this site in your browser settings, then try again.',
+    'service-not-allowed': 'The browser speech-recognition service is blocked. Check your browser permissions or use the text box instead.',
+    'audio-capture': 'No microphone was found. Connect or enable a microphone, then try again.',
+    network: 'The browser could not reach its speech-recognition service. Check your internet connection and try again, or use the text box.',
+    'language-not-supported': 'Speech recognition does not support the selected language in this browser.',
+    'no-speech': 'No speech was detected. Check your microphone and try speaking again.',
+    aborted: 'Speech recognition was stopped.',
+  };
+
+  return messages[code] || `Speech recognition failed (${code}). Check your microphone and browser permissions, then try again.`;
+};
+
 export const speakText = (text) => {
   if (!window.speechSynthesis) return;
   

@@ -1,5 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { speakText } from '../services/speechService';
+import HandSkeleton from './fx/HandSkeleton';
+import Segmented from './fx/Segmented';
+import {
+  CameraIcon, StopIcon, SpaceIcon, UndoIcon, TrashIcon, CopyIcon, CheckIcon, SpeakerIcon,
+} from './fx/Icons';
 
 // Standard MediaPipe hand landmark connection lines
 const HAND_CONNECTIONS = [
@@ -138,10 +143,13 @@ const SignToText = () => {
       if (!landmarks || landmarks.length < 21) return;
       
       // Right hand: Emerald Green, Left hand: Vibrant Amber
-      const color = handIndex === 0 ? '#10b981' : '#f59e0b';
-      const jointColor = handIndex === 0 ? '#34d399' : '#fbbf24';
+      const color = handIndex === 0 ? '#7bd8bd' : '#f2a17b';
+      const jointColor = handIndex === 0 ? '#3fcba3' : '#f3c078';
 
-      // Draw bone connections
+      // Draw bone connections with a neon glow
+      ctx.save();
+      ctx.shadowColor = color;
+      ctx.shadowBlur = 14;
       ctx.strokeStyle = color;
       ctx.lineWidth = 3.5;
       ctx.lineCap = 'round';
@@ -155,11 +163,12 @@ const SignToText = () => {
           ctx.stroke();
         }
       });
+      ctx.restore();
 
       // Draw landmark joints
       landmarks.forEach((pt, i) => {
         const isFingertip = [4, 8, 12, 16, 20].includes(i);
-        ctx.fillStyle = isFingertip ? '#38bdf8' : jointColor;
+        ctx.fillStyle = isFingertip ? '#82c8f2' : jointColor;
         ctx.beginPath();
         ctx.arc(pt.x * width, pt.y * height, i === 0 ? 6 : (isFingertip ? 5 : 3.5), 0, 2 * Math.PI);
         ctx.fill();
@@ -174,7 +183,9 @@ const SignToText = () => {
       const p1 = interaction.hand1_point;
       const p2 = interaction.hand2_point;
       ctx.save();
-      ctx.strokeStyle = '#06b6d4';
+      ctx.strokeStyle = '#82c8f2';
+      ctx.shadowColor = '#82c8f2';
+      ctx.shadowBlur = 16;
       ctx.lineWidth = 4;
       ctx.setLineDash([6, 6]);
       ctx.beginPath();
@@ -321,80 +332,87 @@ const SignToText = () => {
     }
   };
 
+  const confidencePct = Math.round((currentPrediction?.confidence || 0) * 100);
+  const ringCircumference = 2 * Math.PI * 18;
+
   return (
-    <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <section className="studio glass-panel tone-mint" aria-label="Student panel: sign to text">
       {/* Header */}
-      <div className="p-4 bg-teal-50 border-b border-teal-100 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-teal-800 flex items-center gap-2">
-          <span>📷</span> Student Panel: Multi-Hand Sign to Text
-        </h2>
-        <div className="flex items-center gap-2">
-          <span className={`inline-block w-2.5 h-2.5 rounded-full ${backendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
-          <span className="text-xs font-semibold text-teal-900">
-            {backendOnline ? 'Dual-Hand ISL Engine Active' : 'Connecting to AI Backend...'}
-          </span>
+      <header className="studio-head">
+        <span className="studio-badge"><CameraIcon /></span>
+        <div>
+          <span className="studio-kicker mono">Student</span>
+          <h2>Sign → Text</h2>
         </div>
-      </div>
-      
-      <div className="p-4 flex-1 flex flex-col gap-4 overflow-y-auto">
-        {error && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
+        <span className={`studio-status ${backendOnline ? 'is-online' : 'is-offline'}`}>
+          <span className="live-dot" />
+          {backendOnline ? 'Dual-hand ISL engine active' : backendOnline === false ? 'Connecting to AI backend…' : 'Checking engine…'}
+        </span>
+      </header>
+
+      <div className="studio-body">
+        {error && <div className="notice fade-up">{error}</div>}
 
         {/* Video stream container */}
-        <div className="relative aspect-video bg-gray-900 rounded-xl overflow-hidden flex items-center justify-center shadow-inner">
-          <video 
-            ref={videoRef} 
-            playsInline 
-            muted 
-            className={`w-full h-full object-cover ${!isActive ? 'hidden' : ''}`}
-          />
-          
-          {/* Skeleton canvas overlay */}
-          <canvas 
-            ref={canvasRef} 
-            className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${!isActive ? 'hidden' : ''}`} 
+        <div className={`cam${isActive ? ' is-active' : ''}${handDetected ? ' has-hand' : ''}`}>
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            style={{ display: isActive ? 'block' : 'none' }}
           />
 
+          {/* Skeleton canvas overlay */}
+          <canvas ref={canvasRef} style={{ display: isActive ? 'block' : 'none' }} />
+
+          <div className="hud-grid" />
+          <div className="hud-corners"><i /><i /><i /><i /></div>
+          {isActive && <div className="scanline" />}
+
           {!isActive && (
-            <div className="text-center p-6 text-gray-400 flex flex-col items-center gap-2">
-              <span className="text-4xl">🤲</span>
-              <span className="font-semibold text-white">Camera is off</span>
-              <span className="text-xs text-gray-400 max-w-xs">
-                Turn on your webcam to detect two-handed & single-handed ISL gestures with 3D landmark tracking.
-              </span>
+            <div className="cam-off">
+              <HandSkeleton hands={2} interval={2000} title="Preview of two-hand landmark tracking" />
+              <strong>Camera is off</strong>
+              <span>Turn on your webcam to detect two-handed and single-handed ISL gestures with 3D landmark tracking.</span>
             </div>
           )}
-          
+
           {/* Live gesture HUD badge */}
           {isActive && (
-            <div className="absolute top-3 left-3 right-3 flex justify-between items-start pointer-events-none">
-              <div className="bg-black/75 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border border-white/10 shadow-lg">
-                <span className={`w-2 h-2 rounded-full ${handDetected ? 'bg-emerald-400 animate-ping' : 'bg-red-400'}`} />
-                <span>{handDetected ? `${handPredictions.length} Hand${handPredictions.length === 1 ? '' : 's'} Tracked` : 'Searching for Hands...'}</span>
-              </div>
-              
+            <div className="cam-hud">
+              <span className={`cam-pill ${handDetected ? 'is-on' : 'is-off'}`}>
+                <span className="live-dot" />
+                {handDetected ? `${handPredictions.length} hand${handPredictions.length === 1 ? '' : 's'} tracked` : 'Searching for hands…'}
+              </span>
+
               {currentPrediction && (
-                <div className="flex flex-col items-end gap-1.5 max-w-[70%]">
-                  <div className={`backdrop-blur-md text-white px-3.5 py-1.5 rounded-full text-xs font-bold shadow-lg border flex items-center gap-1.5 ${
-                    isTwoHandedSign 
-                      ? 'bg-gradient-to-r from-emerald-600 to-teal-600 border-emerald-300' 
-                      : 'bg-gradient-to-r from-blue-600 to-indigo-600 border-blue-300'
-                  }`}>
-                    <span>{isTwoHandedSign ? '🤲 2-Hand ISL:' : '🖐️ 1-Hand Sign:'}</span>
-                    <span className="text-sm font-black uppercase text-yellow-300">{currentPrediction.sign}</span>
-                    <span className="text-[10px] opacity-90">({Math.round((currentPrediction.confidence || 0) * 100)}%)</span>
+                <div className="cam-prediction">
+                  <div key={currentPrediction.sign} className={`cam-prediction-card pop-in${isTwoHandedSign ? ' is-two' : ''}`}>
+                    <span className="conf-ring">
+                      <svg viewBox="0 0 44 44">
+                        <circle className="track" cx="22" cy="22" r="18" />
+                        <circle
+                          className="value"
+                          cx="22"
+                          cy="22"
+                          r="18"
+                          strokeDasharray={ringCircumference}
+                          strokeDashoffset={ringCircumference * (1 - confidencePct / 100)}
+                        />
+                      </svg>
+                      <b>{confidencePct}</b>
+                    </span>
+                    <span>
+                      <span className="cam-prediction-kind">{isTwoHandedSign ? '2-hand ISL' : '1-hand sign'}</span>
+                      <span className="cam-prediction-sign">{currentPrediction.sign}</span>
+                    </span>
                   </div>
-                  
+
                   {/* Individual hand mini badges */}
                   {handPredictions.length >= 2 && (
-                    <div className="flex gap-1">
+                    <div className="cam-hands">
                       {handPredictions.map((h, idx) => (
-                        <span key={idx} className="text-[10px] bg-black/60 text-gray-200 px-2 py-0.5 rounded-md border border-white/10">
-                          {h.handedness || `Hand ${idx+1}`}: {h.prediction || 'Tracking'}
-                        </span>
+                        <span key={idx}>{h.handedness || `Hand ${idx + 1}`}: {h.prediction || 'Tracking'}</span>
                       ))}
                     </div>
                   )}
@@ -405,64 +423,38 @@ const SignToText = () => {
         </div>
 
         {/* Camera Start / Stop */}
-        <div className="flex gap-2 justify-center">
-          {!isActive ? (
-            <button 
-              onClick={startCamera} 
-              className="flex-1 px-4 py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl font-bold transition shadow-sm flex items-center justify-center gap-2"
-            >
-              <span>🎥</span> Start Camera (Track 1 & 2 Hands)
-            </button>
-          ) : (
-            <button 
-              onClick={stopCamera} 
-              className="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition shadow-sm flex items-center justify-center gap-2"
-            >
-              <span>⏹</span> Stop Camera
-            </button>
-          )}
-        </div>
+        {!isActive ? (
+          <button type="button" onClick={startCamera} className="btn btn--primary btn--lg btn--block">
+            <CameraIcon /> Start camera · track 1 &amp; 2 hands
+          </button>
+        ) : (
+          <button type="button" onClick={stopCamera} className="btn btn--danger btn--lg btn--block">
+            <StopIcon /> Stop camera
+          </button>
+        )}
 
         {/* Quick Simulator Buttons & Tabs */}
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-gray-600 uppercase tracking-wider">
-              Quick Test / Practice ISL Signs:
-            </span>
-            <div className="flex gap-1">
-              <button 
-                onClick={() => setActiveTab('vowels_letters')}
-                className={`text-[11px] px-2.5 py-1 rounded-md font-semibold transition ${activeTab === 'vowels_letters' ? 'bg-teal-600 text-white shadow-xs' : 'bg-white text-gray-600 border'}`}
-              >
-                ISL Letters (A-Z)
-              </button>
-              <button 
-                onClick={() => setActiveTab('words')}
-                className={`text-[11px] px-2.5 py-1 rounded-md font-semibold transition ${activeTab === 'words' ? 'bg-teal-600 text-white shadow-xs' : 'bg-white text-gray-600 border'}`}
-              >
-                ISL Words
-              </button>
-              <button 
-                onClick={() => setActiveTab('single_gestures')}
-                className={`text-[11px] px-2.5 py-1 rounded-md font-semibold transition ${activeTab === 'single_gestures' ? 'bg-teal-600 text-white shadow-xs' : 'bg-white text-gray-600 border'}`}
-              >
-                1-Hand Signs
-              </button>
-            </div>
+        <div className="practice">
+          <div className="practice-head">
+            <span className="mono practice-title">Quick test · practice ISL signs</span>
+            <Segmented
+              label="Practice sign set"
+              value={activeTab}
+              onChange={setActiveTab}
+              options={[
+                { value: 'vowels_letters', label: 'Letters A–Z' },
+                { value: 'words', label: 'Words' },
+                { value: 'single_gestures', label: '1-hand' },
+              ]}
+            />
           </div>
 
           {activeTab === 'vowels_letters' && (
-            <div>
-              <span className="text-[10px] text-teal-700 font-semibold block mb-1.5">
-                ISL Two-Handed Fingerspelling (Vowels A, E, I, O, U + Consonants B-Z):
-              </span>
-              <div className="grid grid-cols-7 sm:grid-cols-9 md:grid-cols-13 gap-1">
+            <div className="fade-up">
+              <span className="practice-hint">ISL two-handed fingerspelling — vowels A, E, I, O, U + consonants B–Z</span>
+              <div className="letter-pad">
                 {ISL_LETTERS.map((item) => (
-                  <button
-                    key={item.value}
-                    onClick={() => handleSimulateGesture(item.value)}
-                    className="text-xs font-bold bg-white hover:bg-teal-600 hover:text-white text-gray-800 p-1.5 rounded-lg border border-gray-200 text-center shadow-2xs transition"
-                  >
+                  <button key={item.value} type="button" onClick={() => handleSimulateGesture(item.value)} className="letter-key">
                     {item.label}
                   </button>
                 ))}
@@ -471,13 +463,9 @@ const SignToText = () => {
           )}
 
           {activeTab === 'words' && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="gesture-pad fade-up">
               {ISL_WORDS.map((item, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSimulateGesture(item.value)}
-                  className="text-xs bg-white hover:bg-teal-50 hover:text-teal-700 text-gray-700 font-medium px-2.5 py-1.5 rounded-lg border border-gray-200 shadow-2xs transition"
-                >
+                <button key={idx} type="button" onClick={() => handleSimulateGesture(item.value)} className="chip">
                   {item.label}
                 </button>
               ))}
@@ -485,13 +473,9 @@ const SignToText = () => {
           )}
 
           {activeTab === 'single_gestures' && (
-            <div className="flex flex-wrap gap-1.5">
+            <div className="gesture-pad fade-up">
               {PRESET_GESTURES.map((g, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSimulateGesture(g.value)}
-                  className="text-xs bg-white hover:bg-teal-50 hover:text-teal-700 text-gray-700 font-medium px-2.5 py-1.5 rounded-lg border border-gray-200 shadow-2xs transition"
-                >
+                <button key={idx} type="button" onClick={() => handleSimulateGesture(g.value)} className="chip">
                   {g.label}
                 </button>
               ))}
@@ -500,77 +484,39 @@ const SignToText = () => {
         </div>
 
         {/* Translation Output Box */}
-        <div className="mt-auto bg-gray-50 rounded-xl border border-gray-200 p-4 flex flex-col">
-          <div className="flex justify-between items-center mb-2">
-            <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              Translated Sentence
-            </label>
+        <div className="sentence">
+          <div className="sentence-head">
+            <span className="mono practice-title">Translated sentence</span>
             {predictedSentence.length > 0 && (
-              <span className="text-xs text-teal-700 font-bold bg-teal-100 px-2.5 py-0.5 rounded-full">
-                {predictedSentence.length} tokens
-              </span>
+              <span className="tag tag--mint">{predictedSentence.length} tokens</span>
             )}
           </div>
 
-          <div className="flex-1 text-lg font-bold text-gray-800 min-h-[50px] flex items-center flex-wrap gap-1.5 bg-white p-3 rounded-lg border border-gray-200">
+          <div className="sentence-tokens" aria-live="polite">
             {predictedSentence.length > 0 ? (
               predictedSentence.map((word, i) => (
-                <span key={i} className={`${word === ' ' ? 'w-3' : 'bg-teal-50 border border-teal-200 text-teal-900 px-2 py-0.5 rounded-md shadow-2xs'}`}>
+                <span key={i} className={word === ' ' ? 'token token--space' : 'token'}>
                   {word === ' ' ? '' : word}
                 </span>
               ))
             ) : (
-              <span className="text-gray-400 italic font-normal text-sm">
-                Perform gestures with your camera or click test buttons above...
-              </span>
+              <span className="sentence-empty">Perform gestures with your camera or tap the test buttons above…</span>
             )}
           </div>
-          
+
           {/* Action Toolbar */}
-          <div className="grid grid-cols-5 gap-2 mt-3 pt-3 border-t border-gray-200">
-            <button 
-              onClick={handleAddSpace} 
-              className="px-2 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 transition text-xs"
-              title="Add Space"
-            >
-              ␣ Space
+          <div className="sentence-actions">
+            <button type="button" onClick={handleAddSpace} className="btn" title="Add space"><SpaceIcon /> Space</button>
+            <button type="button" onClick={handleUndo} disabled={predictedSentence.length === 0} className="btn" title="Undo last token"><UndoIcon /> Undo</button>
+            <button type="button" onClick={handleClear} disabled={predictedSentence.length === 0} className="btn" title="Clear all"><TrashIcon /> Clear</button>
+            <button type="button" onClick={handleCopy} disabled={predictedSentence.length === 0} className="btn" title="Copy text">
+              {copied ? <><CheckIcon /> Copied</> : <><CopyIcon /> Copy</>}
             </button>
-            <button 
-              onClick={handleUndo} 
-              disabled={predictedSentence.length === 0} 
-              className="px-2 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 disabled:opacity-40 transition text-xs"
-              title="Undo last token"
-            >
-              ↩ Undo
-            </button>
-            <button 
-              onClick={handleClear} 
-              disabled={predictedSentence.length === 0} 
-              className="px-2 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 disabled:opacity-40 transition text-xs"
-              title="Clear all"
-            >
-              🗑 Clear
-            </button>
-            <button 
-              onClick={handleCopy} 
-              disabled={predictedSentence.length === 0} 
-              className="px-2 py-2 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-100 disabled:opacity-40 transition text-xs"
-              title="Copy text"
-            >
-              {copied ? '✅ Copied' : '📋 Copy'}
-            </button>
-            <button 
-              onClick={handleSpeak} 
-              disabled={predictedSentence.length === 0} 
-              className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg disabled:opacity-40 transition shadow-sm text-xs flex items-center justify-center gap-1"
-            >
-              <span>🔊</span> Speak
-            </button>
+            <button type="button" onClick={handleSpeak} disabled={predictedSentence.length === 0} className="btn btn--primary"><SpeakerIcon /> Speak</button>
           </div>
         </div>
-
       </div>
-    </div>
+    </section>
   );
 };
 

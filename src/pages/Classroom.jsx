@@ -1,7 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SignToText from '../components/SignToText';
-import { createSpeechRecognition } from '../services/speechService';
+import VoiceVisualizer from '../components/fx/VoiceVisualizer';
+import Segmented from '../components/fx/Segmented';
+import Reveal from '../components/fx/Reveal';
+import {
+  MicIcon, StopIcon, PlayIcon, PauseIcon, PrevIcon, NextIcon, ReplayIcon, TrashIcon, ArrowIcon,
+} from '../components/fx/Icons';
+import './Classroom.css';
+import { createSpeechRecognition, getSpeechRecognitionErrorMessage } from '../services/speechService';
 import { translateTextToSigns } from '../utils/textToSigns';
+
+const SPEED_OPTIONS = [
+  { value: 1800, label: '0.7×' },
+  { value: 1200, label: '1×' },
+  { value: 700, label: '1.5×' },
+  { value: 600, label: '2×' },
+];
 
 const PRESET_PHRASES = [
   "Hello",
@@ -15,6 +29,7 @@ const PRESET_PHRASES = [
 const Classroom = () => {
   // Teacher State
   const [isListening, setIsListening] = useState(false);
+  const [isStartingListening, setIsStartingListening] = useState(false);
   const [teacherText, setTeacherText] = useState('');
   const [typedInput, setTypedInput] = useState('');
   const [interimText, setInterimText] = useState('');
@@ -34,6 +49,7 @@ const Classroom = () => {
   useEffect(() => {
     recognitionRef.current = createSpeechRecognition(
       (final, interim) => {
+        if (final || interim.trim()) setError('');
         if (final) {
           speechTranscriptRef.current = [speechTranscriptRef.current, final].filter(Boolean).join(' ').trim();
           setTeacherText(speechTranscriptRef.current);
@@ -41,7 +57,8 @@ const Classroom = () => {
         interimTranscriptRef.current = interim;
         setInterimText(interim);
 
-        if ((final || interim.trim()) && !speechTranslationTimerRef.current) {
+        if ((final || interim.trim()) && (speechTranscriptRef.current || interim.trim())) {
+          clearTimeout(speechTranslationTimerRef.current);
           speechTranslationTimerRef.current = setTimeout(() => {
             speechTranslationTimerRef.current = null;
             const spokenText = [speechTranscriptRef.current, interimTranscriptRef.current]
@@ -53,13 +70,25 @@ const Classroom = () => {
         }
       },
       (err) => {
-        if (err.error !== 'no-speech') {
-          setError(`Microphone error: ${err.error}`);
+        if (err.error === 'no-speech') {
+          setError(getSpeechRecognitionErrorMessage(err));
+        } else if (err.error !== 'aborted') {
+          setError(getSpeechRecognitionErrorMessage(err));
           setIsListening(false);
         }
       },
       () => {
         setIsListening(false);
+        if (!speechTranslationTimerRef.current && (speechTranscriptRef.current || interimTranscriptRef.current)) {
+          speechTranslationTimerRef.current = setTimeout(() => {
+            speechTranslationTimerRef.current = null;
+            const spokenText = [speechTranscriptRef.current, interimTranscriptRef.current]
+              .filter(Boolean)
+              .join(' ')
+              .trim();
+            if (spokenText) setTranslationText(spokenText);
+          }, 1500);
+        }
       }
     );
 
@@ -75,20 +104,33 @@ const Classroom = () => {
     };
   }, []);
 
-  const toggleListening = () => {
+  const toggleListening = async () => {
     if (isListening) {
       recognitionRef.current?.stop();
       setIsListening(false);
     } else {
+      if (isStartingListening) return;
       setError('');
+      if (!recognitionRef.current) {
+        setError('Speech recognition is not supported in this browser. Try Chrome or Edge, or use the text box below.');
+        return;
+      }
       speechTranscriptRef.current = teacherText;
       interimTranscriptRef.current = '';
+      setIsStartingListening(true);
       try {
+        if (navigator.mediaDevices?.getUserMedia) {
+          const microphone = await navigator.mediaDevices.getUserMedia({ audio: true });
+          microphone.getTracks().forEach(track => track.stop());
+        }
         recognitionRef.current?.start();
         setIsListening(true);
       } catch (err) {
         console.error(err);
-        setError('Could not start microphone');
+        setError(getSpeechRecognitionErrorMessage(err));
+        setIsListening(false);
+      } finally {
+        setIsStartingListening(false);
       }
     }
   };
@@ -165,6 +207,8 @@ const Classroom = () => {
   };
 
   const clearTeacherText = () => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
     clearTimeout(speechTranslationTimerRef.current);
     speechTranscriptRef.current = '';
     interimTranscriptRef.current = '';
@@ -199,226 +243,190 @@ const Classroom = () => {
     setTranslationText(phrase);
   };
 
+
   const currentSign = signSequence[currentSignIndex] || null;
+  const orbRef = useRef(null);
+  const filmRef = useRef(null);
+
+  const handleLevel = (level) => {
+    orbRef.current?.style.setProperty('--level', level.toFixed(3));
+  };
+
+  useEffect(() => {
+    const strip = filmRef.current;
+    const card = strip?.children[currentSignIndex];
+    if (strip && card) {
+      strip.scrollTo({ left: card.offsetLeft - strip.clientWidth / 2 + card.clientWidth / 2, behavior: 'smooth' });
+    }
+  }, [currentSignIndex, signSequence]);
+
+  const micState = isListening ? 'listening' : isStartingListening ? 'starting' : 'idle';
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col min-h-[calc(100vh-64px)]">
-      <div className="mb-4 flex justify-between items-end">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Inclusive Classroom</h1>
-          <p className="text-gray-600 mt-1">Communicate seamlessly using Speech, Text, and Indian Sign Language (ISL).</p>
-        </div>
-      </div>
+    <div className="page classroom">
+      <Reveal className="page-head classroom-head">
+        <span className="eyebrow">Inclusive classroom · live session</span>
+        <h1 className="display">One room. <em>Every language.</em></h1>
+        <p className="lead">Teachers speak or type and students see ISL. Students sign to the camera and everyone reads, or hears, what they said.</p>
+      </Reveal>
 
-      <div className="flex-1 grid md:grid-cols-2 gap-6 min-h-0">
-        
+      <div className="classroom-grid">
         {/* Teacher Panel */}
-        <div className="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-4 bg-blue-50 border-b border-blue-100 flex justify-between items-center">
-            <h2 className="text-xl font-bold text-blue-800 flex items-center gap-2">
-              <span>🎙️</span> Teacher Panel: Speech to ISL
-            </h2>
-            <span className="text-xs bg-blue-100 text-blue-800 font-semibold px-2.5 py-1 rounded-full">
-              Full Phrases + Fingerspelling
-            </span>
-          </div>
-          
-          <div className="p-4 flex-1 flex flex-col gap-4 overflow-y-auto">
-            {error && (
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-lg text-sm">
-                {error}
-              </div>
-            )}
-            
-            {/* Speech control & Clear */}
-            <div className="flex gap-2">
-              <button 
+        <Reveal as="section" variant="left" className="studio glass-panel tone-coral" aria-label="Teacher panel: speech to ISL">
+          <header className="studio-head">
+            <span className="studio-badge"><MicIcon /></span>
+            <div>
+              <span className="studio-kicker mono">Teacher</span>
+              <h2>Speech → ISL</h2>
+            </div>
+            <span className="tag tag--coral studio-tag">Phrases + fingerspelling</span>
+          </header>
+
+          <div className="studio-body">
+            {error && <div className="notice fade-up">{error}</div>}
+
+            <div className={`mic-row is-${micState}`}>
+              <button
+                ref={orbRef}
+                type="button"
                 onClick={toggleListening}
-                className={`flex-1 px-4 py-3 rounded-xl font-bold text-white transition shadow-sm flex items-center justify-center gap-2 ${
-                  isListening ? 'bg-red-500 hover:bg-red-600 animate-pulse' : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                disabled={isStartingListening}
+                className="mic-orb"
+                aria-pressed={isListening}
+                aria-label={isListening ? 'Stop speaking' : 'Start speaking'}
               >
-                <span>{isListening ? '🛑' : '🎤'}</span>
-                {isListening ? 'Stop Speaking' : 'Start Speaking'}
+                <span className="mic-orb-ring" />
+                <span className="mic-orb-ring mic-orb-ring--2" />
+                <span className="mic-orb-core">{isListening ? <StopIcon /> : <MicIcon />}</span>
               </button>
-              <button 
-                onClick={clearTeacherText} 
-                className="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition"
-              >
-                Clear
+              <div className="mic-copy">
+                <strong>
+                  {isListening ? 'Listening…' : isStartingListening ? 'Allow microphone access…' : 'Tap to start speaking'}
+                </strong>
+                <span>Spoken words translate after a 1.5 second pause.</span>
+                <VoiceVisualizer active={isListening} onLevel={handleLevel} />
+              </div>
+              <button type="button" onClick={clearTeacherText} className="btn btn--sm mic-clear">
+                <TrashIcon /> Clear
               </button>
             </div>
 
-            {/* Quick Presets */}
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-semibold text-gray-400">Quick Test:</span>
+            <div className="preset-row">
+              <span className="mono preset-label">Quick test</span>
               {PRESET_PHRASES.map((phrase, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handlePresetClick(phrase)}
-                  className="text-xs bg-gray-100 hover:bg-blue-50 hover:text-blue-700 text-gray-600 px-2.5 py-1 rounded-lg border border-gray-200 transition"
-                >
+                <button key={idx} type="button" onClick={() => handlePresetClick(phrase)} className="chip">
                   {phrase}
                 </button>
               ))}
             </div>
 
-            {/* Manual text input */}
-            <form onSubmit={handleManualSubmit} className="flex gap-2">
-              <input 
+            <form onSubmit={handleManualSubmit} className="field type-field">
+              <input
                 type="text"
                 value={typedInput}
                 onChange={(e) => setTypedInput(e.target.value)}
-                placeholder="Or type any sentence to convert to ISL..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Or type any sentence to convert to ISL…"
+                aria-label="Sentence to convert to ISL"
               />
-              <button 
-                type="submit" 
-                className="px-3 py-2 bg-gray-800 hover:bg-black text-white text-sm font-semibold rounded-lg transition"
-              >
-                Translate
-              </button>
+              <button type="submit" className="btn btn--primary btn--sm">Translate <ArrowIcon /></button>
             </form>
 
-            {/* Live Transcription Box */}
-            <div className="bg-gray-50 border border-gray-200 rounded-xl p-3">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-1">
-                Active Text <span className="ml-2 font-normal normal-case tracking-normal text-gray-400">Speech translation starts after 1.5 seconds</span>
-              </label>
-              <div className="text-base text-gray-800 font-medium min-h-[30px]">
-                {teacherText} <span className="text-blue-500 italic">{interimText}</span>
-                {!teacherText && !interimText && (
-                  <span className="text-gray-400 italic font-normal">Speak or type words to generate signs...</span>
+            <div className={`transcript${isListening ? ' is-live' : ''}`}>
+              <span className="mono transcript-label">Active text</span>
+              <p>
+                {teacherText} <span className="transcript-interim">{interimText}</span>
+                {isListening && <span className="caret" aria-hidden="true" />}
+                {!teacherText && !interimText && !isListening && (
+                  <span className="transcript-empty">Speak or type words to generate signs…</span>
                 )}
-              </div>
+              </p>
             </div>
 
-            {/* ISL Main Stage Viewer */}
-            <div className="border-t border-gray-100 pt-3 flex flex-col flex-1">
-              <div className="flex justify-between items-center mb-2">
-                <label className="text-sm font-bold text-gray-700 flex items-center gap-1.5">
-                  <span>🤟</span> ISL Visual Translation
+            <div className="stage">
+              <div className="stage-bar">
+                <span className="stage-title">
+                  ISL visual translation
                   {signSequence.length > 0 && (
-                    <span className="text-xs font-normal text-gray-500">
-                      ({currentSignIndex + 1} of {signSequence.length} signs)
-                    </span>
+                    <span className="mono stage-count">{currentSignIndex + 1}/{signSequence.length}</span>
                   )}
-                </label>
-                
-                {/* Playback Controls */}
-                <div className="flex items-center gap-2">
-                  <select 
-                    value={playbackSpeed}
-                    onChange={(e) => setPlaybackSpeed(Number(e.target.value))}
-                    className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded border border-gray-200"
-                  >
-                    <option value={1800}>0.7x Speed</option>
-                    <option value={1200}>1.0x Speed</option>
-                    <option value={700}>1.5x Speed</option>
-                    <option value={600}>2x Speed</option>
-                  </select>
-
-                  <button 
-                    onClick={handlePrev}
-                    disabled={currentSignIndex === 0 || signSequence.length === 0}
-                    className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 disabled:opacity-30"
-                    title="Previous Sign"
-                  >
-                    ⏮
-                  </button>
-                  <button 
-                    onClick={handlePlayPause}
-                    disabled={signSequence.length === 0}
-                    className="text-xs px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded disabled:opacity-30"
-                  >
-                    {isPlaying ? '⏸ Pause' : '▶ Play'}
-                  </button>
-                  <button 
-                    onClick={handleNext}
-                    disabled={currentSignIndex >= signSequence.length - 1 || signSequence.length === 0}
-                    className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-700 disabled:opacity-30"
-                    title="Next Sign"
-                  >
-                    ⏭
-                  </button>
-                </div>
+                </span>
+                <Segmented options={SPEED_OPTIONS} value={playbackSpeed} onChange={setPlaybackSpeed} label="Playback speed" />
               </div>
 
-              {/* Display Area */}
-              <div className="bg-gray-900 rounded-xl flex flex-col items-center justify-center p-4 relative min-h-[220px]">
+              {signSequence.length > 0 && (
+                <div className="stage-progress" aria-hidden="true">
+                  {signSequence.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className={idx < currentSignIndex ? 'is-done' : idx === currentSignIndex ? (isPlaying ? 'is-playing' : 'is-current') : ''}
+                    >
+                      <i style={{ animationDuration: `${playbackSpeed}ms` }} key={`${idx}-${currentSignIndex}-${isPlaying}`} />
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="stage-screen">
+                <div className="hud-grid" />
                 {currentSign ? (
-                  <div className="flex flex-col items-center animate-fadeIn">
-                    <img 
-                      src={currentSign.value} 
-                      alt={currentSign.label}
-                      className="h-44 max-w-full object-contain rounded-lg bg-white p-2 shadow-lg"
-                    />
-                    <div className="mt-3 flex items-center gap-2">
-                      <span className="text-white font-bold text-xl uppercase tracking-wider">
-                        {currentSign.label}
-                      </span>
+                  <figure key={`${currentSignIndex}-${currentSign.label}`} className="stage-figure pop-in">
+                    <img src={currentSign.value} alt={currentSign.label} />
+                    <figcaption>
+                      <strong>{currentSign.label}</strong>
                       {currentSign.isFingerspelled ? (
-                        <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full uppercase">
-                          Spelling "{currentSign.wordGroup}" ({currentSign.letterIndex + 1}/{currentSign.letterTotal})
+                        <span className="tag tag--amber">
+                          Spelling “{currentSign.wordGroup}” · {currentSign.letterIndex + 1}/{currentSign.letterTotal}
                         </span>
                       ) : (
-                        <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full uppercase">
-                          Full Phrase
-                        </span>
+                        <span className="tag tag--mint">Full phrase</span>
                       )}
-                    </div>
-                  </div>
+                    </figcaption>
+                  </figure>
                 ) : (
-                  <div className="text-gray-500 text-center flex flex-col items-center gap-2">
-                    <span className="text-3xl">🤲</span>
+                  <div className="stage-empty">
+                    <span className="stage-empty-icon">🤲</span>
                     <span>Speak or type to generate sign language animations</span>
                   </div>
                 )}
               </div>
 
-              {/* Sequence Filmstrip / Timeline */}
+              <div className="stage-controls">
+                <button type="button" className="btn btn--icon" onClick={handlePrev} disabled={currentSignIndex === 0 || signSequence.length === 0} aria-label="Previous sign"><PrevIcon /></button>
+                <button type="button" className="btn btn--primary stage-play" onClick={handlePlayPause} disabled={signSequence.length === 0}>
+                  {isPlaying ? <><PauseIcon /> Pause</> : <><PlayIcon /> Play</>}
+                </button>
+                <button type="button" className="btn btn--icon" onClick={handleNext} disabled={currentSignIndex >= signSequence.length - 1 || signSequence.length === 0} aria-label="Next sign"><NextIcon /></button>
+                <button type="button" className="btn btn--icon" onClick={handleReplay} disabled={signSequence.length === 0} aria-label="Replay from start"><ReplayIcon /></button>
+              </div>
+
               {signSequence.length > 0 && (
-                <div className="mt-3">
-                  <div className="text-xs font-semibold text-gray-400 mb-1.5 flex justify-between">
-                    <span>Full Sentence Sequence:</span>
-                    <span>Click any sign to preview</span>
-                  </div>
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                <div className="filmstrip-wrap">
+                  <div className="mono filmstrip-label"><span>Full sentence sequence</span><span>Click any sign to preview</span></div>
+                  <div className="filmstrip" ref={filmRef}>
                     {signSequence.map((sign, idx) => (
                       <button
                         key={idx}
+                        type="button"
                         onClick={() => handleSelectSign(idx)}
-                        className={`flex-shrink-0 flex flex-col items-center p-1.5 rounded-lg border transition-all ${
-                          idx === currentSignIndex
-                            ? 'border-blue-500 bg-blue-50/50 ring-2 ring-blue-400/50'
-                            : 'border-gray-200 bg-gray-50 hover:bg-gray-100 opacity-80'
-                        }`}
+                        className={`film-card${idx === currentSignIndex ? ' is-active' : ''}${idx < currentSignIndex ? ' is-past' : ''}`}
+                        style={{ animationDelay: `${Math.min(idx, 20) * 30}ms` }}
                       >
-                        <img 
-                          src={sign.value} 
-                          alt={sign.label}
-                          className="w-12 h-12 object-contain bg-white rounded border border-gray-100 p-0.5"
-                        />
-                        <span className="text-[11px] font-bold text-gray-800 mt-1 uppercase">
-                          {sign.label}
-                        </span>
-                        <span className="text-[9px] text-gray-500">
-                          {sign.isFingerspelled ? 'Letter' : 'Phrase'}
-                        </span>
+                        <img src={sign.value} alt={sign.label} />
+                        <span className="film-label">{sign.label}</span>
+                        <span className="film-kind">{sign.isFingerspelled ? 'Letter' : 'Phrase'}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               )}
-
             </div>
-
           </div>
-        </div>
+        </Reveal>
 
         {/* Student Panel */}
-        <SignToText />
-
+        <Reveal variant="right" delay={120} className="classroom-student">
+          <SignToText />
+        </Reveal>
       </div>
     </div>
   );

@@ -1,77 +1,217 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { loadDictionary } from '../utils/textToSigns';
+import { speakText } from '../services/speechService';
+import TiltCard from '../components/fx/TiltCard';
+import Reveal from '../components/fx/Reveal';
+import {
+  SearchIcon, CloseIcon, SpeakerIcon, PrevIcon, NextIcon, ArrowIcon, ShuffleIcon,
+} from '../components/fx/Icons';
+import './Learn.css';
+
+const PLACEHOLDERS = ['Search “good morning”…', 'Try “mango”…', 'Look up a letter like “K”…', 'Find “take care”…'];
+
+const categoryOf = (entry) => {
+  if (entry.word.length === 1) return 'letters';
+  if (entry.word.includes(' ')) return 'phrases';
+  return 'words';
+};
+
+const CATEGORY_LABEL = { phrases: 'Phrase', words: 'Word', letters: 'Letter' };
+const CATEGORY_TONE = { phrases: 'mint', words: 'sky', letters: 'amber' };
+
+const SignModal = ({ entries, index, onClose, onMove }) => {
+  const entry = entries[index];
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowRight') onMove(1);
+      if (e.key === 'ArrowLeft') onMove(-1);
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [onClose, onMove]);
+
+  if (!entry) return null;
+  const category = categoryOf(entry);
+
+  return (
+    <div className="sign-modal" role="dialog" aria-modal="true" aria-label={`Sign for ${entry.word}`} onClick={onClose}>
+      <div className="sign-modal-card glass-panel glass-panel--glow" onClick={(e) => e.stopPropagation()}>
+        <button type="button" className="btn btn--icon sign-modal-close" onClick={onClose} aria-label="Close"><CloseIcon /></button>
+        <div key={entry.word} className="sign-modal-media pop-in">
+          <img src={entry.gif || entry.image} alt={`ISL sign for ${entry.word}`} />
+        </div>
+        <div className="sign-modal-info">
+          <span className={`tag tag--${CATEGORY_TONE[category]}`}>{CATEGORY_LABEL[category]}</span>
+          <h2 className="display">{entry.word}</h2>
+          {entry.examples?.[0] && !entry.examples[0].startsWith('Example for') && (
+            <p><span className="mono">EXAMPLE</span>{entry.examples[0]}</p>
+          )}
+          <div className="sign-modal-actions">
+            <button type="button" className="btn" onClick={() => speakText(entry.word)}><SpeakerIcon /> Hear it</button>
+            <Link className="btn btn--primary" to="/classroom">Practice in classroom <ArrowIcon /></Link>
+          </div>
+          <div className="sign-modal-nav">
+            <button type="button" className="btn btn--icon" onClick={() => onMove(-1)} aria-label="Previous sign"><PrevIcon /></button>
+            <span className="mono">{index + 1} / {entries.length}</span>
+            <button type="button" className="btn btn--icon" onClick={() => onMove(1)} aria-label="Next sign"><NextIcon /></button>
+            <span className="sign-modal-keys mono">← → to browse · esc to close</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Learn = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [dictionary, setDictionary] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
+  const [category, setCategory] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [openIndex, setOpenIndex] = useState(null);
+  const [placeholder, setPlaceholder] = useState(0);
 
   useEffect(() => {
     const fetchDict = async () => {
       const data = await loadDictionary();
-      setDictionary(data);
+      // Present phrases first, then words, then the alphabet in order.
+      const order = { phrases: 0, words: 1, letters: 2 };
+      setDictionary([...data].sort((a, b) =>
+        order[categoryOf(a)] - order[categoryOf(b)] || a.word.localeCompare(b.word)));
       setLoading(false);
     };
     fetchDict();
   }, []);
 
-  const filtered = dictionary.filter(entry => 
-    entry.word.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (entry.examples && entry.examples.some(ex => ex.toLowerCase().includes(searchTerm.toLowerCase())))
-  );
+  useEffect(() => {
+    const timer = setInterval(() => setPlaceholder((i) => (i + 1) % PLACEHOLDERS.length), 3000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const updateSearch = (value) => {
+    setSearchTerm(value);
+    setSearchParams(value ? { q: value } : {}, { replace: true });
+  };
+
+  const counts = useMemo(() => {
+    const c = { all: dictionary.length, phrases: 0, words: 0, letters: 0 };
+    dictionary.forEach((e) => { c[categoryOf(e)] += 1; });
+    return c;
+  }, [dictionary]);
+
+  const filtered = useMemo(() => {
+    const term = searchTerm.toLowerCase().trim();
+    return dictionary.filter((entry) =>
+      (category === 'all' || categoryOf(entry) === category) &&
+      (!term ||
+        entry.word.toLowerCase().includes(term) ||
+        (entry.examples && entry.examples.some((ex) => ex.toLowerCase().includes(term)))));
+  }, [dictionary, searchTerm, category]);
+
+  const handleMove = useCallback((step) => {
+    setOpenIndex((i) => (i === null ? i : (i + step + filtered.length) % filtered.length));
+  }, [filtered.length]);
+
+  const handleClose = useCallback(() => setOpenIndex(null), []);
+
+  const surprise = () => {
+    if (filtered.length) setOpenIndex(Math.floor(Math.random() * filtered.length));
+  };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="text-center mb-10">
-        <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Learn Indian Sign Language</h1>
-        <p className="text-xl text-gray-600">Browse our dictionary of commonly used signs.</p>
-        
-        <div className="mt-8 max-w-xl mx-auto relative">
-          <input 
-            type="text" 
-            placeholder="Search signs, phrases, examples..." 
+    <div className="page learn">
+      <Reveal className="page-head page-head--center">
+        <span className="eyebrow">ISL dictionary</span>
+        <h1 className="display">Learn <em>Indian Sign Language.</em></h1>
+        <p className="lead">Browse commonly used phrases, words and the fingerspelling alphabet. Tap any sign to see it up close.</p>
+      </Reveal>
+
+      <Reveal delay={100} className="learn-controls">
+        <label className="field learn-search">
+          <SearchIcon />
+          <input
+            type="text"
+            placeholder={PLACEHOLDERS[placeholder]}
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-6 py-4 rounded-full border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg outline-none"
+            onChange={(e) => updateSearch(e.target.value)}
+            aria-label="Search signs, phrases and examples"
           />
+          {searchTerm && (
+            <button type="button" className="btn btn--icon btn--ghost" onClick={() => updateSearch('')} aria-label="Clear search"><CloseIcon /></button>
+          )}
+        </label>
+
+        <div className="learn-filters">
+          {[
+            ['all', 'All'],
+            ['phrases', 'Phrases'],
+            ['words', 'Words'],
+            ['letters', 'Letters'],
+          ].map(([key, label]) => (
+            <button key={key} type="button" className={`chip${category === key ? ' is-active' : ''}`} onClick={() => setCategory(key)}>
+              {label} <span className="count">{counts[key]}</span>
+            </button>
+          ))}
+          <button type="button" className="chip learn-surprise" onClick={surprise} disabled={!filtered.length}>
+            <ShuffleIcon width="14" height="14" /> Surprise me
+          </button>
         </div>
-      </div>
+      </Reveal>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-500 text-lg">Loading dictionary...</div>
+        <div className="learn-grid" aria-busy="true">
+          {Array.from({ length: 8 }, (_, i) => <div key={i} className="learn-skeleton" />)}
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <>
+          <p className="learn-result mono" aria-live="polite">
+            {filtered.length} sign{filtered.length === 1 ? '' : 's'}{searchTerm ? ` matching “${searchTerm}”` : ''}
+          </p>
           {filtered.length > 0 ? (
-            filtered.map((entry, idx) => (
-              <div key={idx} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
-                <div className="h-48 bg-gray-50 p-4 flex items-center justify-center border-b border-gray-100">
-                  {entry.gif || entry.image ? (
-                    <img 
-                      src={entry.gif || entry.image} 
-                      alt={entry.word} 
-                      className="max-h-full max-w-full object-contain rounded"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <span className="text-gray-400 italic">No visual available</span>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="text-xl font-bold text-gray-900 mb-2 uppercase">{entry.word}</h3>
-                  {entry.examples && entry.examples.length > 0 && (
-                    <p className="text-sm text-gray-600 line-clamp-2">
-                      <span className="font-semibold text-gray-700">Example:</span> {entry.examples[0]}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))
+            <div className="learn-grid" key={`${category}-${searchTerm}`}>
+              {filtered.map((entry, idx) => {
+                const cat = categoryOf(entry);
+                return (
+                  <TiltCard
+                    as="button"
+                    type="button"
+                    key={entry.word}
+                    className={`learn-card glass-panel tone-${CATEGORY_TONE[cat]}`}
+                    style={{ animationDelay: `${Math.min(idx, 24) * 28}ms` }}
+                    onClick={() => setOpenIndex(idx)}
+                    max={7}
+                  >
+                    <span className="learn-card-media">
+                      <img src={entry.gif || entry.image} alt={entry.word} loading="lazy" />
+                    </span>
+                    <span className="learn-card-body">
+                      <span className="learn-card-word">{entry.word}</span>
+                      <span className={`tag tag--${CATEGORY_TONE[cat]}`}>{CATEGORY_LABEL[cat]}</span>
+                    </span>
+                  </TiltCard>
+                );
+              })}
+            </div>
           ) : (
-            <div className="col-span-full text-center py-20 text-gray-500 text-lg">
-              No signs found for "{searchTerm}"
+            <div className="learn-empty glass-panel">
+              <span>🤷</span>
+              <p>No signs found for “{searchTerm}”.</p>
+              <span className="learn-empty-hint">Words without a sign are fingerspelled in the classroom.</span>
+              <Link className="btn btn--primary" to="/classroom">Fingerspell it in the classroom <ArrowIcon /></Link>
             </div>
           )}
-        </div>
+        </>
+      )}
+
+      {openIndex !== null && (
+        <SignModal entries={filtered} index={openIndex} onClose={handleClose} onMove={handleMove} />
       )}
     </div>
   );

@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { loadDictionary } from '../utils/textToSigns';
+import { burstFromElement } from './fx/confetti';
+import { readStored, writeStored } from './fx/hooks';
+import { UndoIcon, BulbIcon, SkipIcon, ArrowIcon, TrophyIcon, FlameIcon } from './fx/Icons';
+
+const BEST_KEY = 'signbridge.scramble.best';
 
 function shuffleArray(array) {
   const newArr = [...array];
@@ -10,21 +15,23 @@ function shuffleArray(array) {
   return newArr;
 }
 
+// Words carry ids so repeated words ("you ... you") stay distinct tiles.
+const toTiles = (words) => words.map((word, i) => ({ id: `${i}-${word}`, word }));
+
 const ScrambleGame = () => {
   const [currentPhrase, setCurrentPhrase] = useState(null);
   const [scrambledWords, setScrambledWords] = useState([]);
   const [userAnswer, setUserAnswer] = useState([]);
   const [message, setMessage] = useState('');
   const [isCorrect, setIsCorrect] = useState(false);
+  const [isWrong, setIsWrong] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState([]);
-
-  useEffect(() => {
-    loadDictionary().then(dict => {
-      setData(dict);
-      startGame(dict);
-    });
-  }, []);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [hintsUsed, setHintsUsed] = useState(0);
+  const [best, setBest] = useState(() => readStored(BEST_KEY, 0));
+  const boardRef = useRef(null);
 
   const startGame = (dict) => {
     // Need phrases with more than 1 word and a gif
@@ -40,106 +47,175 @@ const ScrambleGame = () => {
     const selectedPhrase = playablePhrases[randomIndex];
 
     setCurrentPhrase(selectedPhrase);
-    const words = selectedPhrase.word.trim().split(' ');
-    setScrambledWords(shuffleArray(words));
+    const words = toTiles(selectedPhrase.word.trim().split(' '));
+    let shuffled = shuffleArray(words);
+    if (words.length > 1 && shuffled.every((t, i) => t.id === words[i].id)) shuffled = [...shuffled].reverse();
+    setScrambledWords(shuffled);
     setUserAnswer([]);
     setMessage('');
     setIsCorrect(false);
+    setIsWrong(false);
+    setHintsUsed(0);
     setIsLoading(false);
   };
 
-  const handleWordClick = (word, index) => {
-    setUserAnswer(prev => [...prev, word]);
-    const newScrambled = [...scrambledWords];
-    newScrambled.splice(index, 1);
-    setScrambledWords(newScrambled);
-  };
+  useEffect(() => {
+    loadDictionary().then(dict => {
+      setData(dict);
+      startGame(dict);
+    });
+  }, []);
 
-  const checkAnswer = () => {
+  const checkAnswer = (answerTiles) => {
     if (!currentPhrase) return;
     const correctPhrase = currentPhrase.word.toLowerCase();
-    const userPhrase = userAnswer.join(' ').toLowerCase();
+    const userPhrase = answerTiles.map((t) => t.word).join(' ').toLowerCase();
 
     if (userPhrase === correctPhrase) {
-      setMessage('✅ Correct! Well done!');
+      const points = Math.max(5, answerTiles.length * 10 - hintsUsed * 8) * Math.min(streak + 1, 4);
+      const nextScore = score + points;
+      setMessage(`Correct! +${points}`);
       setIsCorrect(true);
+      setIsWrong(false);
+      setScore(nextScore);
+      setStreak((s) => s + 1);
+      if (nextScore > best) {
+        setBest(nextScore);
+        writeStored(BEST_KEY, nextScore);
+      }
+      burstFromElement(boardRef.current);
     } else {
-      setMessage('❌ Try again. The order is incorrect.');
+      setMessage('Not quite — tap a word to send it back and try again.');
       setIsCorrect(false);
+      setIsWrong(true);
+      setStreak(0);
+      setTimeout(() => setIsWrong(false), 500);
     }
+  };
+
+  const handleWordClick = (tile) => {
+    if (isCorrect) return;
+    const nextAnswer = [...userAnswer, tile];
+    const nextBank = scrambledWords.filter((t) => t.id !== tile.id);
+    setUserAnswer(nextAnswer);
+    setScrambledWords(nextBank);
+    setMessage('');
+    if (nextBank.length === 0) checkAnswer(nextAnswer);
+  };
+
+  const returnWord = (tile) => {
+    if (isCorrect) return;
+    setUserAnswer((prev) => prev.filter((t) => t.id !== tile.id));
+    setScrambledWords((prev) => [...prev, tile]);
+    setMessage('');
+  };
+
+  const undoLast = () => {
+    if (userAnswer.length === 0) return;
+    returnWord(userAnswer[userAnswer.length - 1]);
+  };
+
+  // Places the next correct word for a small points cost.
+  const applyHint = () => {
+    if (!currentPhrase || isCorrect) return;
+    const target = currentPhrase.word.trim().split(' ');
+    let correctPrefix = 0;
+    while (correctPrefix < userAnswer.length && userAnswer[correctPrefix].word === target[correctPrefix]) correctPrefix++;
+    const kept = userAnswer.slice(0, correctPrefix);
+    const pool = [...scrambledWords, ...userAnswer.slice(correctPrefix)];
+    const nextWord = target[correctPrefix];
+    const tile = pool.find((t) => t.word === nextWord);
+    if (!tile) return;
+    const nextAnswer = [...kept, tile];
+    const nextBank = pool.filter((t) => t.id !== tile.id);
+    setHintsUsed((h) => h + 1);
+    setUserAnswer(nextAnswer);
+    setScrambledWords(nextBank);
+    setMessage('');
+    if (nextBank.length === 0) checkAnswer(nextAnswer);
   };
 
   const resetGame = () => {
     startGame(data);
   };
 
-  const undoLast = () => {
-    if (userAnswer.length === 0) return;
-    const lastWord = userAnswer[userAnswer.length - 1];
-    setUserAnswer(prev => prev.slice(0, -1));
-    setScrambledWords(prev => [...prev, lastWord]);
-    setMessage('');
+  const skip = () => {
+    setStreak(0);
+    startGame(data);
   };
 
-  if (isLoading) return <div className="p-8 text-center text-gray-500">Loading game...</div>;
+  if (isLoading) return <div className="game-loading"><span className="spinner" /> Loading game…</div>;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-2xl mx-auto text-center">
-      <h2 className="text-3xl font-bold text-blue-600 mb-2">Caption Scramble</h2>
-      <p className="text-gray-600 mb-8">Reorder the words to match the sign video.</p>
-
-      {currentPhrase && (
-        <div className="mb-8 flex justify-center">
-          <img src={currentPhrase.gif || currentPhrase.image} alt="Sign language hint" className="h-64 object-contain rounded bg-gray-50 border border-gray-200 p-2" />
+    <div className="game-shell">
+      <div className="game-hud">
+        <div className="game-stat"><span className="mono">SCORE</span><strong key={score} className="pop-in">{score}</strong></div>
+        <div className={`game-stat game-stat--streak${streak >= 2 ? ' is-hot' : ''}`}>
+          <span className="mono">STREAK</span>
+          <strong><FlameIcon width="18" height="18" /> {streak}</strong>
         </div>
-      )}
-
-      <div className="mb-6">
-        <h3 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider">Your Answer</h3>
-        <div className="min-h-[60px] bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-wrap gap-2 justify-center items-center">
-          {userAnswer.length === 0 && <span className="text-gray-400 italic">Click words below to arrange them</span>}
-          {userAnswer.map((word, idx) => (
-            <span key={idx} className="px-4 py-2 bg-blue-100 text-blue-800 font-bold rounded-lg cursor-pointer hover:bg-blue-200 transition">
-              {word}
-            </span>
-          ))}
-        </div>
+        <div className="game-stat"><span className="mono">HINTS</span><strong>{hintsUsed}</strong></div>
+        <div className="game-stat"><span className="mono">BEST</span><strong><TrophyIcon width="17" height="17" /> {best}</strong></div>
       </div>
 
-      <div className="mb-8">
-        <h3 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider">Word Bank</h3>
-        <div className="flex flex-wrap gap-2 justify-center min-h-[50px]">
-          {scrambledWords.map((word, index) => (
-            <button
-              key={index}
-              onClick={() => handleWordClick(word, index)}
-              className="px-4 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg hover:bg-gray-100 shadow-sm transition"
-            >
-              {word}
-            </button>
-          ))}
+      <div ref={boardRef} className={`game-card-main glass-panel${isWrong ? ' shake' : ''}${isCorrect ? ' is-correct' : ''}`}>
+        <div className="quiz-top">
+          <div>
+            <span className="eyebrow eyebrow--coral">Caption scramble</span>
+            <h2 className="display quiz-title">Reorder the words to <em>match the sign.</em></h2>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-col gap-4 items-center">
-        {message && (
-          <div className={`font-bold text-lg ${isCorrect ? 'text-green-600' : 'text-red-500'}`}>
-            {message}
+        {currentPhrase && (
+          <div className="quiz-media">
+            <img key={currentPhrase.word} className="pop-in" src={currentPhrase.gif || currentPhrase.image} alt="Sign language hint" />
           </div>
         )}
-        
-        <div className="flex gap-4">
-          <button onClick={undoLast} disabled={userAnswer.length === 0} className="px-6 py-2 bg-gray-200 text-gray-700 font-bold rounded-xl hover:bg-gray-300 disabled:opacity-50 transition">
-            Undo
+
+        <div className="scramble-zone">
+          <span className="mono scramble-label">Your answer</span>
+          <div className={`scramble-slots${isCorrect ? ' is-solved' : ''}`}>
+            {userAnswer.length === 0 && <span className="scramble-empty">Tap words below to build the caption</span>}
+            {userAnswer.map((tile) => (
+              <button key={tile.id} type="button" className="word-tile word-tile--placed pop-in" onClick={() => returnWord(tile)} disabled={isCorrect}>
+                {tile.word}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="scramble-zone">
+          <span className="mono scramble-label">Word bank</span>
+          <div className="scramble-bank">
+            {scrambledWords.map((tile, i) => (
+              <button
+                key={tile.id}
+                type="button"
+                onClick={() => handleWordClick(tile)}
+                className="word-tile pop-in"
+                style={{ animationDelay: `${i * 50}ms` }}
+              >
+                {tile.word}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {message && (
+          <p className={`scramble-message fade-up ${isCorrect ? 'is-good' : 'is-bad'}`}>{message}</p>
+        )}
+
+        <div className="scramble-actions">
+          <button type="button" onClick={undoLast} disabled={userAnswer.length === 0 || isCorrect} className="btn">
+            <UndoIcon /> Undo
+          </button>
+          <button type="button" onClick={applyHint} disabled={isCorrect} className="btn">
+            <BulbIcon /> Hint
           </button>
           {!isCorrect ? (
-            <button onClick={checkAnswer} disabled={scrambledWords.length > 0} className="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:opacity-50 transition">
-              Check Answer
-            </button>
+            <button type="button" onClick={skip} className="btn btn--ghost"><SkipIcon /> Skip</button>
           ) : (
-            <button onClick={resetGame} className="px-6 py-2 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition">
-              Next Phrase
-            </button>
+            <button type="button" onClick={resetGame} className="btn btn--primary">Next phrase <ArrowIcon /></button>
           )}
         </div>
       </div>
